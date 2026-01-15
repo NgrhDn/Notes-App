@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'halaman_form.dart';
+import '../controllers/catatan_controller.dart';
+import '../widgets/grid_catatan.dart';
+import 'form_tambah.dart';
+import 'form_edit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,90 +12,52 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> notes = [];
+  final CatatanController controller = CatatanController();
 
-  void tambahCatatan() async {
+  void bukaTambah() async {
     String? hasil = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const FormPage()),
+      MaterialPageRoute(builder: (_) => const FormTambah()),
     );
 
     if (hasil != null) {
       setState(() {
-        notes.add(hasil);
+        controller.tambah(hasil);
       });
     }
   }
 
-  void editCatatan(int index) async {
+  void bukaEdit(int index) async {
     String? hasil = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FormPage(textAwal: notes[index])),
+      MaterialPageRoute(
+        builder: (_) => FormEdit(textAwal: controller.notes[index]),
+      ),
     );
 
     if (hasil != null) {
       setState(() {
-        notes[index] = hasil;
+        controller.edit(index, hasil);
       });
     }
-  }
-
-  void hapusCatatan(int index) {
-    setState(() {
-      notes.removeAt(index);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CATATAN APP'), centerTitle: true),
+      appBar: AppBar(title: const Text('CATATAN APP')),
       floatingActionButton: FloatingActionButton(
-        onPressed: tambahCatatan,
+        onPressed: bukaTambah,
         child: const Icon(Icons.add),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: GridView.builder(
-          itemCount: notes.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.85,
-          ),
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => editCatatan(index),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          notes[index],
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => hapusCatatan(index),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+      body: GridCatatan(
+        notes: controller.notes,
+        onTap: bukaEdit,
+        onDelete: (i) {
+          setState(() {
+            controller.hapus(i);
+          });
+        },
       ),
     );
   }

@@ -37,8 +37,7 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
         ),
       ),
-
-      // Home diganti ke halaman catatan
+      
       home: const HomePage(),
       debugShowCheckedModeBanner: false,
     );
